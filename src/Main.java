@@ -3,142 +3,123 @@ import java.util.*;
 import java.util.regex.*;
 
 public class Main {
-    /*public static void main(String[] args) {
-        ArrayList<String> lines = new ArrayList<>();
-        try {
-            Scanner input = new Scanner(new File("Bible.txt"));
-            while (input.hasNextLine()) {
-                lines.add(input.nextLine());
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Error Reading File; " + e);
-        }
-    }*/
-
-    public static void main(String[] args) {
-        ArrayList<String> myArray = new ArrayList<>();
-        try {
-            Scanner s = new Scanner(new File("Bible.txt"));
-            skipLines(s, 104);//skip 105 lines of input.txt file
-            //read the rest of the file
-            while (s.hasNextLine()) {
-                String line = s.nextLine();
-                reformatBible(line, myArray);
-            }
-        }catch (FileNotFoundException e) {
-            System.out.println("Error Reading File; " + e);
-        }
-        try {
-            FileWriter myWriter = new FileWriter("NewBible.txt");
-            for (int i = 0; i < myArray.size(); i++){
-                myWriter.write(myArray.get(i) + "\n");
-            }
-            myWriter.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-        //System.out.println(myArray.size());
-        ArrayList<String> myArray2 = new ArrayList<>();
-        try {
-            Scanner s = new Scanner(new File("NewBible.txt"));
-            //skipLines(s, 104);//skip 105 lines of input.txt file
-            //read the rest of the file
-            while (s.hasNextLine()) {
-                String line = s.nextLine();
-                verseSeparater(line, myArray2);
-            }
-        }catch (FileNotFoundException e) {
-            System.out.println("Error Reading File; " + e);
-        }
-        try {
-            FileWriter myWriter = new FileWriter("NewBible2.txt");
-            for (int i = 0; i < myArray2.size(); i++){
-                myWriter.write(myArray2.get(i) + "\n");
-            }
-            myWriter.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
+    public enum BookTestament {
+        NewTestament,
+        OldTestament;
     }
-    public static void reformatBible(String line, ArrayList<String> myArray){
-        if (line.equals("")){
+    public static void main(String args[]) {
 
-        }
-        else{
-            char ch = line.charAt(0);
-            if (ch >= '0' && ch <= '9') {
-                /*if (line.substring(6).indexOf("1") == -1 && line.substring(6).indexOf("2") == -1 && line.substring(6).indexOf("3") == -1 && line.substring(6).indexOf("4") == -1 && line.substring(6).indexOf("5") == -1 && line.substring(6).indexOf("6") == -1 && line.substring(6).indexOf("7") == -1 && line.substring(6).indexOf("8") == -1 && line.substring(6).indexOf("9") == -1){
-                    boolean b = true;
-                    while (b){
-                        Scanner s = new Scanner(line);
-                        while (s.hasNextLine()) {
-                            String st = s.next();
-                            char ch2 = st.charAt(0);
-                            if (ch2 == '1' || ch2 == '2' || ch2 == '3' || ch2 == '4' || ch2 == '5' || ch2 == '6' || ch2 == '7' || ch2 == '8' || ch2 == '9'){
-
+        boolean running = true;
+        do {
+            System.out.println("Do you want to:\nA - Search for verses with a word or phrase\nB - Associate a word with a verse\nC - Search for a specific verse");
+            Scanner s = new Scanner(System.in);
+            String task = s.next();
+            if (task.equalsIgnoreCase("A")) {
+                System.out.println("What do you want to search for?");
+                Scanner wordScanner = new Scanner(System.in);
+                String word = wordScanner.nextLine();
+                System.out.println("Verses with word:\n");
+                try {
+                    Scanner s2 = new Scanner(new File("BibleWithBookNames.txt"));
+                    while (s2.hasNextLine()) {
+                        String line = s2.nextLine();
+                        String newline = line;
+                        Pattern pat = Pattern.compile("[0-9]+:[0-9]+");
+                        Matcher m = pat.matcher(line);
+                        while (m.find()) {
+                            int e = m.end();
+                            newline = line.substring(e);
+                        }
+                        if (newline.indexOf(word) != -1) {
+                            System.out.println(line);
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error Reading File; " + e);
+                }
+                System.out.println("\nVerses associated with word:\n");
+                try {
+                    Scanner s2 = new Scanner(new File("KeyWords.txt"));
+                    while (s2.hasNextLine()) {
+                        String line = s2.nextLine();
+                        if (line.indexOf(word) != -1) {
+                            String[] arrOfStr = line.split(",");
+                            for (int i = 1; i < arrOfStr.length; i++){
+                                Scanner s3 = new Scanner(new File("BibleWithBookNames.txt"));
+                                while (s3.hasNextLine()) {
+                                    String BibleLine = s3.nextLine();
+                                    if (BibleLine.indexOf(arrOfStr[i]) != -1) {
+                                        System.out.println(BibleLine);
+                                    }
+                                }
                             }
                         }
                     }
-                }*/
-                /*boolean b = true;
-                boolean a = true;
-                 while (b) {
-                     a = false;
-                    for (int i = 0; i < line.length(); i++) {
-                        char ch2 = line.charAt(i);
-                        if (ch2 == '1' || ch2 == '2' || ch2 == '3' || ch2 == '4' || ch2 == '5' || ch2 == '6' || ch2 == '7' || ch2 == '8' || ch2 == '9') {
-                            myArray.add(line.substring(0, i));
-                            line = line.substring(i);
-                            a = true;
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error Reading File; " + e);
+                }
+            }
+            else if (task.equalsIgnoreCase("B")){
+                ArrayList<String> myArray = new ArrayList<>();
+                System.out.println("What do you want to add to this program?");
+                Scanner r = new Scanner(System.in);
+                String word = r.nextLine();
+                System.out.println("What verse do you want to add it to?");
+                String verse = r.nextLine();
+                boolean found = false;
+                try {
+                    Scanner s2 = new Scanner(new File("KeyWords.txt"));
+                    while (s2.hasNextLine()) {
+                        String line = s2.nextLine();
+                        if (line.indexOf(word) != -1) {
+                            found = true;
+                            myArray.add(line + "," + verse);
+                            break;
+                        }
+                        else{
+                            myArray.add(line);
                         }
                     }
-                    if (!a){
-                        b = false;
+                    if (!found){
+                        myArray.add(word + "," + verse);
                     }
-                }*/
-                myArray.add(line);
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error Reading File; " + e);
+                }
+                try {
+                    FileWriter myWriter = new FileWriter("KeyWords.txt");
+                    for (int i = 0; i < myArray.size(); i++){
+                        myWriter.write(myArray.get(i) + "\n");
+                    }
+                    myWriter.close();
+                } catch (IOException e) {
+                    System.out.println("An error occurred.");
+                    e.printStackTrace();
+                }
             }
-            else
-            {
-                myArray.set((myArray.size() - 1), (myArray.get(myArray.size() - 1) + " " + line));
+            else if (task.equalsIgnoreCase("C")) {
+                try {
+                    System.out.println("What verse do you want to search for?");
+                    Scanner myScanner = new Scanner(System.in);
+                    String verse = myScanner.nextLine();
+                    Scanner s2 = new Scanner(new File("BibleWithBookNames.txt"));
+                    while (s2.hasNextLine()) {
+                        String line = s2.nextLine();
+                        if (line.indexOf(verse) != -1) {
+                            System.out.println(line);
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error Reading File; " + e);
+                }
+            } else {
+                System.out.println("Invalid input...");
             }
-        }
-    }
-    public static void skipLines(Scanner s,int lineNum){
-        for(int i = 0; i < lineNum; i++){
-            if(s.hasNextLine())s.nextLine();
-        }
-    }
-    public static void verseSeparater(String line, ArrayList<String> myArray) {
-        Pattern pat = Pattern.compile("[0-9]+:[0-9]+");
-        Matcher m = pat.matcher(line);
-        ArrayList<Integer> starts = new ArrayList<>();
-        /*ArrayList<Integer> ends = new ArrayList<>();
-        ArrayList<Integer> lengths = new ArrayList<>();*/
-        /*while (m.find()) {
-            System.out.print("Start index: " + m.start());
-            System.out.print(" End index: " + m.end());
-            System.out.println(" Found: " + m.group());
-            System.out.println("Length: " + m.group().length());
-        }
-        System.out.println("End of line");*/
-        while (m.find()){
-            starts.add(m.start());
-        }
-        if (starts.size() > 1){
-            for (int a = 0; a < starts.size() - 1; a++){
-                myArray.add(line.substring(starts.get(a), starts.get(a + 1)));
+        System.out.println("\nType \"c\" to continue.\nType anything else to exit.");
+            String answer = s.next();
+            if (!answer.equalsIgnoreCase("c")){
+                running = false;
             }
-            /*myArray.add(line.substring(starts.get(0), starts.get(1)));
-            System.out.println("Size: " + starts.size());
-            line = line.substring(starts.get(0));
-            System.out.println(line);*/
-            myArray.add(line.substring(starts.get(starts.size() - 1)));
-        }
-        else{
-            myArray.add(line);
-        }
+        }while (running);
     }
 }
